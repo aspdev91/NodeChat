@@ -23,6 +23,7 @@
     "passport-spotify": "^0.3.0",
     "passport-twitter": "1.0.3",
     "redis": "^2.6.2",
+    "socket.io": "^1.4.8",
     "socket.io-redis": "^1.0.0",
     "winston": "^2.2.0"
   }
