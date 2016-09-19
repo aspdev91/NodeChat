@@ -1,4 +1,4 @@
-'use-strict';
+'use strict';
 
 if(process.env.NODE_ENV === 'production'){
 	//Offer production stgae environment variables
@@ -17,8 +17,8 @@ if(process.env.NODE_ENV === 'production'){
 			profileFields: ['id','displayName','photos']
 		},
 		"sp": {
-			"clientID": "93c445bff70342718d88029c3d8c7f71",
-			"clientSecret": "f89b569a06814c618b7d98609ab726a3",
+			"clientID": process.env.spClientID,
+			"clientSecret": process.env.spClientSecret,
 			"callbackURL": process.env.host + "/auth/spotify/callback"
 		},
 		// R2) Set up redis configs with the derived password, port, and hostname
