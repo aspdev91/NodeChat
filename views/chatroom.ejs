@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>ChatCat - Topic Goes Here</title>
+	<link rel="stylesheet" href="/css/chatroomStyles.css">
+	<script src="/js/jquery-2.1.4.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<!-- C1) Get script for cloudinary -->
+	<script src="https://widget.cloudinary.com/global/all.js"></script>
+	<script>
+	//S42) Create
+	'use strict';
+	$(() => {
+		let socket = io('<%= host %>' + '/chatter');
+		let roomID = '<%= roomID %>';
+		let user = '<%= user.fullName %>';
+		let userPic = '<%= user.profilePic %>';
+		// S52) Sets the class chatUsers which is linked below in the div 
+		let chatUsers = $('.chatUsers')
+		// S56) - sets up the variable to userInput class
+		let chatInput = $("input[name='userInput']")
+		// S59) set the chat messages variable
+		let chatMessagesDiv = $('.chatMessages');
+		// C2) Set filePicker to the id uploadFile
+		let filePicker = $('#uploadFile');
+		// S45) Set an event emitter to connect to the server chatter pipeline
+		socket.on('connect', () => { 
+			socket.emit('join', {
+				roomID,
+				user,
+				userPic
+			})
+		})
+		// S50) Creates a user list 
+		let userList = user => {
+			return `<div class="userBlock">
+						<div class="userPic"><img src="${user.userPic}" alt="${user.user}"></div>
+						<div class="cuserName">${user.user }</div>
+					</div>`
+		}
+		// S51) Sets an event listener for updateUsersList
+		socket.on('updateUsersList', data => {
+			let parsedData = JSON.parse(data);
+			let usersListData = '';
+			// creates usersListData based on array list to be displayed on page, bunch of divs
+			for(let user of parsedData){
+				usersListData += userList(user);
+			}
+			// S53) - Add the html to the class chatUsers
+			chatUsers.html('').html(usersListData)
+		})
+
+		// S60) establish updateFeed functionality that autopushes updates to everyone
+		// without using websockets
+		let updateFeed = (userPic, message) => {
+			let template = `<div class="chatBlock">
+								<div class="userPic"><img src="${userPic}"></div>
+								<div class="chatMsg">${message}</div>
+							</div>`;
+			// we prepend so message appear at the bottom
+			// 
+			$(template).hide().prependTo(chatMessagesDiv).slideDown(200);
+		}
+
+		socket.on('inMessage', data => {
+			let parsedData = JSON.parse(data);
+			console.log(62,parsedData)
+			updateFeed(parsedData.userPic,parsedData.message);
+		})
+
+		// S57) access the user input field and puts an event listener for the enter key
+		// we are not using the fat arrow function here because we need the context of "this"
+		// we need the context in which the event was fired
+		// fat arrow functions do not carry a new context, just the old one
+		chatInput.on('keyup',function(evt){
+			evt.preventDefault(); // tell browser not to react
+			let messageFld = $(this);
+			//13 is the enter key
+			if(evt.which === 13 && messageFld.val() !== ''){
+				socket.emit('newMessage', {
+					roomID,
+					user,
+					userPic,
+					message: messageFld.val()
+				})
+				// S61)  Update the local feed
+				updateFeed(userPic,messageFld.val());
+				messageFld.val('');
+			}
+		})
+		// C3 set up cloudinary to launch onclick
+		filePicker.on('click',function(evt){
+			cloudinary.openUploadWidget({
+				// C4) provide info with preset to downsize image
+				cloud_name: 'mtgmusic3',
+				upload_preset: 'djui9gu3'
+			}, (error,result) => {
+				if(!error){
+					let tmp = '';
+					for(let img of result){
+						tmp += `<img src="${img.url}">`
+					}
+					updateFeed(userPic,tmp);
+					socket.emit('newMessage',{
+						roomID,
+						user,
+						userPic,
+						message: tmp
+					})
+			};
+		})
+	})
+})
+	</script>
+</head>
+<body>
+	<div class="container">
+		<div class="titlePanel">
+		<!-- S43) Link the values using EJS  -->
+			<h1>ChatCAT | <%= room %></h1>
+		</div>
+		<div class="controls">
+			<div class="userPicHolder"><img src="<%= user.profilePic %>" alt="<%= user.fullName %>"></div>
+			<p class="userName">"<%= user.fullName %>"</p>
+			<a href="/rooms" id="roomsBtn">Rooms</a>
+			<a href="/logout" id="logOutBtn">Logout</a>
+		</div>
+		<div class="chatListDiv">
+			<div class="chatMessagesPanel">
+				<div class="chatMessages">
+				<!-- Loop this for chat messages -->	
+
+				<!-- loop end -->
+				</div>
+				<div class="typePanel">
+					<input type="text" name="userInput" placeholder="Type here and press enter">
+					<a href="#" id="uploadFile" class="fileUploadBtn">Photo</a>
+				</div>
+			</div>
+			<div class="chatUsers">
+			<!-- Loop this for chat users -->
+
+			<!-- loop end -->
+			</div>
+		</div>
+	</div>
+</body>
+</html>

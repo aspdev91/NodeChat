@@ -1,0 +1,29 @@
+{
+  "name": "chatcat",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Mike T",
+  "license": "ISC",
+  "enginers": {
+    "node": "6.5.0"
+  },
+  "dependencies": {
+    "connect-mongo": "1.1.0",
+    "ejs": "2.3.4",
+    "express": "^4.14.0",
+    "express-session": "^1.14.1",
+    "mongoose": "4.3.1",
+    "morgan": "^1.7.0",
+    "passport": "0.3.2",
+    "passport-facebook": "^2.1.1",
+    "passport-spotify": "^0.3.0",
+    "passport-twitter": "1.0.3",
+    "redis": "^2.6.2",
+    "socket.io-redis": "^1.0.0",
+    "winston": "^2.2.0"
+  }
+}
