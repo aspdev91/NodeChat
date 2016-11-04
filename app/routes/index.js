@@ -32,8 +32,10 @@ module.exports = () => {
 				if(getRoom === undefined){
 					// if the room doesn't exist, it passes down to the next middleware 
 					// which is the 404 error
+					console.log('check routes, cannot getRoom')
 					return next();
 				} else {
+					console.log('this is req.user',req.user)
 					res.render('chatroom',{
 						user: req.user,
 						// S17) sets the host to the respones for the chat route

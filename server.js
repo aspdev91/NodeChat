@@ -5,14 +5,10 @@ const passport = require('passport');
 // invokes express and creates the top level application of express
 // can create multiple sub apps to plug into this main express app
 const app = express();
-const chatCat = require('./app'); // looks at the pages in the app folder
+const chatCat = require('./app'); 
 // sets the port automatically passed from Heroku or 3000 by default when thats unavailable
 app.set('port',process.env.PORT || 3000);
-// you have to set the view engine to ejs 
-// EJS is inherit from express, automatically imported module
 app.set('view engine','ejs');
-// this middleware is from express
-// it looks at all the folders in the piblic folder
 app.use(express.static('public'))
 // middleware has to be declared before the route handlers
 // you don't have to set the views folder since express auto does it
@@ -42,9 +38,9 @@ app.use(express.static('public'))
 app.use(chatCat.session);	
 app.use(passport.initialize());
 app.use(passport.session());
-// M1) Outputs logs using morgan, date, http, etc is combined format
+// Outputs logs using morgan, date, http, etc is combined format
 app.use(require('morgan')('combined', {
-	// M2) steam the files to Winston
+	// Stream the files to Winston
 	stream: {
 		write: message => {
 			//Write to logs
@@ -61,7 +57,7 @@ app.use('/',chatCat.router); // tells the router middleware to use
 // no need to create an http server
 // we're 
 
-// S3) Replace app with ioServer and inject the express app instance here
+// Replace app with ioServer and inject the express app instance here
 chatCat.ioServer(app).listen(app.get('port')), () => {
 	console.log('ChatCat Running on Port:', 3000);
 }

@@ -2,7 +2,12 @@
 
 const router = require('express').Router();
 const db = require('../db');
-const crypto = require('crypto')
+const crypto = require('crypto');
+var dateFormat = require('dateformat');
+var watson = require('watson-developer-cloud');
+var config = require('../config');
+
+
 // this is all the helper functions, private and public functions
 
 // by adding the underscore, we're making this a private function
@@ -42,9 +47,25 @@ let findOne = profileID => {
 let createNewUser = profile => {
 	return new Promise((resolve,reject) => {
 		let newChatUser = new db.userModel({
+			uniqueUserId: randomHex(),
 			profileId: profile.id,
 			fullName: profile.displayName,
-			profilePic: profile.photos[0].value || ''
+			profilePic: profile.photos[0].value || '',
+			emotionScores: {
+				anger: 0,
+				disgust: 0,
+				fear: 0,
+				joy: 0,
+				sadness: 0
+			},
+			socialScores: {
+				openness: 0,
+				conscientiousness: 0,
+				extraversion: 0,
+				agreeableness: 0,
+				emotional_range: 0
+			},
+			messageCount: 0
 		});
 		newChatUser.save(error => {
 			if(error) {
@@ -56,15 +77,45 @@ let createNewUser = profile => {
 		})
 	});
 }
+
+let createNewRoomMDB = newRoom => {
+	return new Promise((resolve,reject) => {
+		let newChatRoom = new db.chatRoomModel({
+			roomID: newRoom.roomID,
+			room: newRoom.room,
+			users: [],
+			creationDate: newRoom.creationDate
+		})
+		newChatRoom.save(error => {
+			if(error){
+				console.log('Create New Room not saved');
+				reject(error)
+			} else {
+				resolve(newChatRoom)
+			}
+		})
+	})
+}
+
+let retrievePastRoomsMDB = () => {
+	return new Promise((resolve,reject) => {
+		db.chatRoomModel.find({$query: {}, $orderby: {$natural : -1}}, (error,pastChatRooms) => {
+			if(error){
+				reject(error);
+			} else {
+				resolve(pastChatRooms);
+			}
+		})
+	})
+}
+
 let createNewSpUser = profile => {
 	return new Promise((resolve,reject) => {
-		console.log('4',profile)
 		let newChatUser = new db.userModel({
 			profileId: profile.id,
 			fullName: profile.displayName,
 			profilePic: profile.photos[0] || ''
 		});
-		console.log("3",newChatUser)
 		newChatUser.save(error => {
 			if(error) {
 				console.log('Create New User Error');
@@ -80,8 +131,9 @@ let createNewSpUser = profile => {
 
 let findById = id => {
 	return new Promise((resolve,reject) => {
-		db.userModel.findById(id, (error,user) => {
+		db.userModel.find({"userID": id}, (error,user) => {
 			if(error){
+				console.log('findById',error);
 				reject(error);
 			} else {
 				resolve(user);
@@ -136,6 +188,7 @@ let findRoomById = (allrooms,roomID) => {
 let addUserToRoom =(allrooms,data,socket) => {
 	// Get the room object
 	let getRoom = findRoomById(allrooms, data.roomID);
+	console.log('getRoom',getRoom)
 	if (getRoom !== undefined) {
 		// Get the active user's ID (ObjectID as used in session)
 		// We can't rely on socket id since that's constantly changing or profile name or id due to
@@ -175,9 +228,9 @@ let addUserToRoom =(allrooms,data,socket) => {
 // S55) Run removeUserFromRoom
 
 let removeUserFromRoom = (allrooms, socket) => {
-	findUser = -1;
+	let findUser = -1;
 	for(let room of allrooms){
-		let findUser = room.users.findIndex((element,index,array) => {
+		findUser = room.users.findIndex((element,index,array) => {
 			if(element.socketID === socket.id){
 				return true;
 			} else {
@@ -194,11 +247,88 @@ let removeUserFromRoom = (allrooms, socket) => {
 	}
 }
 
+let storeNewMessage = data => {
+	return new Promise((resolve,reject) => {
+		let newChatMessage = new db.chatMessageModel({
+			userID: data.userID,
+			chatContent: data.message,
+			roomID: data.roomID,
+			creationDate: dateFormat(Date.now(), "isoDateTime"),
+			userPic: data.userPic,
+			emotionScores: data.analysis.document_tone.tone_categories[0].tones,
+			socialScores: data.analysis.document_tone.tone_categories[2].tones
+		})
+		newChatMessage.save(error => {
+			if(error){
+				reject(error);
+			} else {
+
+				resolve(newChatMessage)
+			}
+		})
+	})	
+}
+
+let analyzeMessage = message => {
+	return new Promise((resolve,reject) => {
+		var tone_analyzer = watson.tone_analyzer({
+		  username: config.ibm.username,
+		  password: config.ibm.password,
+		  version: 'v3',
+		  version_date: '2016-05-19'
+		});
+
+		tone_analyzer.tone({ text: message },
+		 function(err, tone) {
+		    if (err)
+		      reject(err);
+		    else
+		      resolve(tone);
+		});
+	})
+}
+
+let retrieveChatMessages = roomID => {
+	return new Promise((resolve,reject) => {
+		db.chatMessageModel.find({"roomID": roomID}, (error,pastMessages) => {
+			if(error){
+				reject(error);
+			} else {
+				resolve(pastMessages);
+			}
+		})
+	})
+}
+
+let updateUserScores = data => {
+	return new Promise((resolve,reject) => {
+		console.log('this is the data user id',data)
+		db.userModel.find({"profileId" : data.userID},(error,userData) => {
+
+			if(error){
+				console.log('Rrror while updating scores: ',error)
+			}
+
+			for(let emotionScore in data.emotionScores){
+				console.log(emotionScore)
+				userData.emotionScores[emotionScore] = ((userData.emotionScores.emotionScore * userData.messageCount) + data.emotionScores.emotionScore)/(userData.messageCount + 1)
+			}
+			// for(let socialScore in data.socialScores){
+			// 	userData.emotionScore = ((userData.emotionScore * userData.messageCount) + data.analysis.document_tone.tone_categories.tones[emotionScore])/(userData.messageCount + 1)
+			// }
+			userData.messageCount += 1
+		})
+			console.log('new userData',userData)
+	})
+}
+
 module.exports = {
-	// ES6
+	// ES6	
 	route,
 	findOne,
 	createNewUser,
+	createNewRoomMDB,
+	retrievePastRoomsMDB,
 	createNewSpUser,
 	findById,
 	isAuthenticated,
@@ -206,5 +336,9 @@ module.exports = {
 	randomHex,
 	findRoomById,
 	addUserToRoom,
-	removeUserFromRoom
+	removeUserFromRoom,
+	storeNewMessage,
+	retrieveChatMessages,
+	analyzeMessage,
+	updateUserScores
 }

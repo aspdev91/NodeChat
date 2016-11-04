@@ -1,4 +1,0 @@
-{"level":"error","message":"Mongoose connection error MongoError: connect ETIMEDOUT 54.196.80.31:2486","timestamp":"2016-09-19T02:10:58.740Z"}
-{"level":"error","message":"Mongoose connection error MongoError: connect ETIMEDOUT 54.196.80.31:2486","timestamp":"2016-09-19T02:12:31.910Z"}
-{"level":"error","message":"Mongoose connection error MongoError: connect ETIMEDOUT 54.196.80.31:2486","timestamp":"2016-09-19T02:15:26.802Z"}
-{"level":"error","message":"Mongoose connection error MongoError: connect ETIMEDOUT 54.196.80.31:2486","timestamp":"2016-09-19T02:16:55.615Z"}

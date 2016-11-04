@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "connect-mongo": "1.1.0",
+    "dateformat": "^1.0.12",
     "ejs": "2.3.4",
     "express": "^4.14.0",
     "express-session": "^1.14.1",
@@ -25,6 +26,7 @@
     "redis": "^2.6.2",
     "socket.io": "^1.4.8",
     "socket.io-redis": "^1.0.0",
+    "watson-developer-cloud": "^2.3.2",
     "winston": "^2.2.0"
   }
 }

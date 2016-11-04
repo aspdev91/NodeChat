@@ -26,6 +26,10 @@ if(process.env.NODE_ENV === 'production'){
 			host: redisURI.hostname,
 			port: redisURI.port,
 			password: redisPassword
+		},
+		"ibm": {
+			"username": process.env.ibmUsername,
+			"password": process.env.ibmPassword
 		}
 	}
 } else {

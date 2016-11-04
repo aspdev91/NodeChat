@@ -3,13 +3,14 @@ const passport = require('passport');
 const config = require('../config');
 const h = require('../helpers');
 const FacebookStrategy = require('passport-facebook').Strategy;
-const SpotifyStrategy = require('passport-spotify').Strategy;
+// const SpotifyStrategy = require('passport-spotify').Strategy;
 const logger = require('../logger');
 
 module.exports = () => {
 	// allows routes to access the user.id auth using serialize and deserialize
 	// serializeuser is invoked when the authorization ends
 	// this user.id is not from FB, its from MongoDB
+	// refer to isauthenticted on helper function
 	passport.serializeUser((user,done)=> {
 		console.log(user.id);
 		done(null,user.id)
@@ -42,36 +43,36 @@ module.exports = () => {
 		// If the user is not found, create one in the local db and return 
 	};
 
-	let authSpProcessor = (accessToken, refreshToken, profile, done) => {
-		console.log(profile);
-		console.log(accessToken);
-	    // User.findOrCreate({ spotifyId: profile.id }, function (err, user) {
-	    //   return done(err, user);
-	    // });
+	// let authSpProcessor = (accessToken, refreshToken, profile, done) => {
+	// 	console.log(profile);
+	// 	console.log(accessToken);
+	//     // User.findOrCreate({ spotifyId: profile.id }, function (err, user) {
+	//     //   return done(err, user);
+	//     // });
 		
-		h.findOne(profile.id)
-			.then(result => {
-				if(result){
-					// this is usually set to error, but set to null for other reasons
-					done(null, result);
-				} else{ 
-					// Create a new user
-					console.log("1 ",profile)
-					h.createNewSpUser(profile)
-						.then(newChatUser => {
-							console.log("2 ",newChatUser)
-							return done(null,newChatUser)
-						})
-				}
-			})
+	// 	h.findOne(profile.id)
+	// 		.then(result => {
+	// 			if(result){
+	// 				// this is usually set to error, but set to null for other reasons
+	// 				done(null, result);
+	// 			} else{ 
+	// 				// Create a new user
+	// 				console.log("1 ",profile)
+	// 				h.createNewSpUser(profile)
+	// 					.then(newChatUser => {
+	// 						console.log("2 ",newChatUser)
+	// 						return done(null,newChatUser)
+	// 					})
+	// 			}
+			// })
 	    // User.findOrCreate({ spotifyId: profile.id }, function (err, user) {
 	    //   if(err){console.log(err)};
 	    //   console.log(user);
 	    //   return done(err, user);
 	    // });
-	}
+	// }
 
 
 	passport.use(new FacebookStrategy(config.fb, authFbProcessor));
-	passport.use(new SpotifyStrategy(config.sp, authSpProcessor));
+	// passport.use(new SpotifyStrategy(config.sp, authSpProcessor));
 }

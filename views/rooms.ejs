@@ -5,51 +5,48 @@
 	<title>ChatCat - Rooms</title>
 	<link rel="stylesheet" href="/css/roomsStyles.css">
 	<script src="/js/jquery-2.1.4.min.js"></script>
-	<!-- S10) socket io serves this internally and that's how it reaches the html page-->
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
-	// S11) Connects the server to the client  
 	'use strict';
 	$(() => {
 		// this initiates the socket connection between server and client
-		// S12) roomsList is not a route, this is a socket namespace
+		// roomsList is not a route, this is a socket namespace
 		// its a pipe carrying all the socket
 		// it has multiple unique pipelines
-		// S18) Sets the local host to the host provided in the res variable
+		// Sets the local host to the host provided in the res variable
 		let socket = io('<%= host %>' + '/roomslist',{
 			transports: ['websocket']
 		})
-		// S28) create a jquery input field
+		// Create a jquery input field
 		let newRoomInput = $("input[name='roomName']");
-		// S14) turns on the socket 
+		// turns on the socket 
 		// socket.on('connect', () => console.log('Connected to server'))
-		// S20) Create a function called renderChatRoom that accepts an array
 		let renderChatRooms = chatrooms => {
 			let roomsListDiv = $('#roomsListUL');
 			let listStr = '';
 			//S21) Iterate over the array to create a list
-			for(let cat of chatrooms){
-				listStr += `<a href="/chat/${cat.roomID}"><li>${cat.room}</li></a>`
+			for(let chat of chatrooms){
+				listStr += `<a href="/chat/${chat.roomID}"><li>${chat.room}</li></a>`
 			}
-			//S22) clear out roomsListDiv variable and pushing the listStr variable in 
+			// Clears out roomsListDiv variable and pushing the listStr variable in 
 			roomsListDiv.html('').append(listStr);
 		}
-		// S23) Get a list of chatrooms using socket.emit
+		// Get a list of chatrooms using socket.emit
 		// Dispatches an event called getChatRooms which signals our server to trigger the event
 		socket.emit('getChatRooms');
 		// S26) Set an event listener for chatRoomsList which is coming from the server
 		// 
 		socket.on('chatRoomsList', chatrooms => {
 			console.log(chatrooms);
-			// S27) generates the chatrooms
+			// Generates the chatrooms
 			renderChatRooms(JSON.parse(chatrooms));
 		}) 
-		// S29) Create a jquery button
+		// Create a jquery button
 		$('#createBtn').on('click', () => {
-			// S30) If newRoomInput is not blank, then emit a createNewRoom event to server with the newRoomInput
+			// If newRoomInput is not blank, then emit a createNewRoom event to server with the newRoomInput
 			if(newRoomInput.val() !== ''){
 				socket.emit('createNewRoom',newRoomInput.val());
-				// S31) Clear out the input field
+				// Clear out the input field
 				newRoomInput.val('');
 			}
 		})
@@ -72,10 +69,6 @@
 		</div>
 		<div class="roomsListDiv">
 			<ul class="roomsList" id="roomsListUL">
-			<!-- Loop list items here -->
-				
-				<a href="/chat"><li>Coffee and Conversations</li></a>
-			<!-- Loop ends -->
 			</ul>
 		</div>
 	</div>

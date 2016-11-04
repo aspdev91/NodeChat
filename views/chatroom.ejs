@@ -6,25 +6,24 @@
 	<link rel="stylesheet" href="/css/chatroomStyles.css">
 	<script src="/js/jquery-2.1.4.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
-	<!-- C1) Get script for cloudinary -->
 	<script src="https://widget.cloudinary.com/global/all.js"></script>
 	<script>
-	//S42) Create
 	'use strict';
 	$(() => {
-		let socket = io('<%= host %>' + '/chatter');
+		// R8 set client side to only use web sockets 
+		let socket = io('<%= host %>' + '/chatter',{
+			transports: ['websocket']
+		});
 		let roomID = '<%= roomID %>';
 		let user = '<%= user.fullName %>';
+		let userID = '<%= user.uniqueUserId %>';
 		let userPic = '<%= user.profilePic %>';
-		// S52) Sets the class chatUsers which is linked below in the div 
+		// Sets the class chatUsers which is linked below in the div 
 		let chatUsers = $('.chatUsers')
-		// S56) - sets up the variable to userInput class
 		let chatInput = $("input[name='userInput']")
-		// S59) set the chat messages variable
 		let chatMessagesDiv = $('.chatMessages');
-		// C2) Set filePicker to the id uploadFile
 		let filePicker = $('#uploadFile');
-		// S45) Set an event emitter to connect to the server chatter pipeline
+		// Set an event emitter to connect to the server chatter pipeline
 		socket.on('connect', () => { 
 			socket.emit('join', {
 				roomID,
@@ -32,14 +31,14 @@
 				userPic
 			})
 		})
-		// S50) Creates a user list 
+		// Creates a user list 
 		let userList = user => {
 			return `<div class="userBlock">
 						<div class="userPic"><img src="${user.userPic}" alt="${user.user}"></div>
-						<div class="cuserName">${user.user }</div>
+						<div class="userName">${user.user}</div>
 					</div>`
 		}
-		// S51) Sets an event listener for updateUsersList
+		// Sets an event listener for updateUsersList
 		socket.on('updateUsersList', data => {
 			let parsedData = JSON.parse(data);
 			let usersListData = '';
@@ -47,11 +46,19 @@
 			for(let user of parsedData){
 				usersListData += userList(user);
 			}
-			// S53) - Add the html to the class chatUsers
 			chatUsers.html('').html(usersListData)
 		})
 
-		// S60) establish updateFeed functionality that autopushes updates to everyone
+		socket.on('updateMessageList', data => {
+			let parsedData = JSON.parse(data);
+			let messageListData = '';
+			console.log('oldmessages',parsedData);
+			for(let message of parsedData){
+				updateFeed(message.userPic,message.chatContent)
+			}
+		})
+
+		// Establish updateFeed functionality that autopushes updates to everyone
 		// without using websockets
 		let updateFeed = (userPic, message) => {
 			let template = `<div class="chatBlock">
@@ -65,11 +72,11 @@
 
 		socket.on('inMessage', data => {
 			let parsedData = JSON.parse(data);
-			console.log(62,parsedData)
+			console.log('inMessage',parsedData)
 			updateFeed(parsedData.userPic,parsedData.message);
 		})
 
-		// S57) access the user input field and puts an event listener for the enter key
+		// Access the user input field and puts an event listener for the enter key
 		// we are not using the fat arrow function here because we need the context of "this"
 		// we need the context in which the event was fired
 		// fat arrow functions do not carry a new context, just the old one
@@ -79,13 +86,14 @@
 			//13 is the enter key
 			if(evt.which === 13 && messageFld.val() !== ''){
 				socket.emit('newMessage', {
+					userID,
 					roomID,
 					user,
 					userPic,
 					message: messageFld.val()
 				})
 				// S61)  Update the local feed
-				updateFeed(userPic,messageFld.val());
+				// updateFeed(userPic,messageFld.val());
 				messageFld.val('');
 			}
 		})
@@ -117,7 +125,6 @@
 <body>
 	<div class="container">
 		<div class="titlePanel">
-		<!-- S43) Link the values using EJS  -->
 			<h1>ChatCAT | <%= room %></h1>
 		</div>
 		<div class="controls">
@@ -129,9 +136,6 @@
 		<div class="chatListDiv">
 			<div class="chatMessagesPanel">
 				<div class="chatMessages">
-				<!-- Loop this for chat messages -->	
-
-				<!-- loop end -->
 				</div>
 				<div class="typePanel">
 					<input type="text" name="userInput" placeholder="Type here and press enter">
@@ -139,9 +143,6 @@
 				</div>
 			</div>
 			<div class="chatUsers">
-			<!-- Loop this for chat users -->
-
-			<!-- loop end -->
 			</div>
 		</div>
 	</div>
