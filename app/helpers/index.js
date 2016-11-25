@@ -10,7 +10,6 @@ var config = require('../config');
 
 // this is all the helper functions, private and public functions
 
-// by adding the underscore, we're making this a private function
 let _registerRoutes = (routes,method) => {
 	for(let key in routes) {
 		// checks if key is an object, not null, and not an array 
@@ -23,9 +22,6 @@ let _registerRoutes = (routes,method) => {
 			} else if (method === 'post'){
 				router.post(key, routes[key]);
 			} else {
-				// used for routes that have undefined methods 
-				// NA will fall into this condition
-				// this is a middleware function 
 				router.use(routes[key])
 			}
 		}
@@ -127,7 +123,6 @@ let createNewSpUser = profile => {
 	})
 }
 
-// The ES6 promisified version of findById
 
 let findById = id => {
 	return new Promise((resolve,reject) => {
@@ -150,11 +145,8 @@ let isAuthenticated = (req,res,next) => {
 	}
 }
 
-// S34) Create a helper function to find the chatroom by name
-
 let findRoomByName = (allrooms, room) => {
-	// findIndex is a new ES6 function that finds the index of the room matching
-	// -1 is returned if it can't be found in any index
+	
 	let findRoom = allrooms.findIndex((element,index,array) => {
 		if(element.room === room ){
 			return true;
@@ -166,13 +158,13 @@ let findRoomByName = (allrooms, room) => {
 	return findRoom > -1 ? true : false;
 }
 
-// S35) Generate a unique room ID 
+// Generates a unique room ID 
 
 let randomHex = () => {
 	return crypto.randomBytes(24).toString('hex');
 }
 
-// S41) Find a chatroom with a givenID
+// Find a chatroom with a givenID
 let findRoomById = (allrooms,roomID) => {
 	// the find function will return the element room if the callback is true
 	return allrooms.find((element,index,array) => {
@@ -184,7 +176,7 @@ let findRoomById = (allrooms,roomID) => {
 	})
 }
 
-// S47) create this function to add a user to a chatoom
+// create this function to add a user to a chatoom
 let addUserToRoom =(allrooms,data,socket) => {
 	// Get the room object
 	let getRoom = findRoomById(allrooms, data.roomID);
@@ -217,7 +209,7 @@ let addUserToRoom =(allrooms,data,socket) => {
 			userPic: data.userPic
 		});
 		
-		// S48) Join the room channel, allows the user to allow send messages within that single
+		// Join the room channel, allows the user to allow send messages within that single
 			// chatroom
 		socket.join(data.roomID)
 		// Return the updated room object
@@ -225,7 +217,7 @@ let addUserToRoom =(allrooms,data,socket) => {
 	}
 }
 
-// S55) Run removeUserFromRoom
+// Run removeUserFromRoom
 
 let removeUserFromRoom = (allrooms, socket) => {
 	let findUser = -1;

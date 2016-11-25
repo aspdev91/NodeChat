@@ -1,40 +1,15 @@
 'use strict';
 
 const config = require('./config');
-// R3) Provides a client UI to interact with Redis
+
 const redis = require('redis').createClient;
 const adapter = require('socket.io-redis');
-// the router is a middleware function
-// const router = require('express').Router();
 
-// router.get('/',(req,res,next) => {
-// 	res.render('login');
-// });
-
-// if you're handling multiple http requests for a single route
-
-// router.route('/process')
-// 	.get((req,res,next) => {
-// 		res.send('page_get');
-// 	})
-// 	.post((req,res,next) => {
-// 		res.send('page_post')
-// 	})
-
-// Creates an IO Server Instance
 let ioServer = app => {
-	// We're establishing the chatroom var in express to track the chatrooms in array form
-	// It stores it all in memory, need alternative method for storing data store
+
 	app.locals.chatrooms = []
-	// bind in our express app
-	// The express app is binded to our server here instead of the server.js file
 	const server = require('http').Server(app);
-	// invoke its constructor with the server instance
-	// brings in all the socket io code 
 	const io = require('socket.io')(server);
-	// this require statement brings in and executes all the socketio code
-	// we're going to mount in middleware for the io
-	// Force server side socket io to only use web socket, no long polling
 	io.set('transports'['websocket']);
 	// Instantiates a client IF using pubClient, used for send and publishing data buffers
 	let pubClient = redis(config.redis.port, config.redis.host, {

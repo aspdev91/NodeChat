@@ -2,7 +2,7 @@
 
 if(process.env.NODE_ENV === 'production'){
 	//Offer production stgae environment variables
-	// R1) extract the password from process.env.REDIS_URL
+	// extract the password from process.env.REDIS_URL
 	let redisURI = require('url').parse(process.env.REDIS_URL)
 	let redisPassword = redisURI.auth.split(':')[1];
 	module.exports = {
@@ -21,7 +21,7 @@ if(process.env.NODE_ENV === 'production'){
 			"clientSecret": process.env.spClientSecret,
 			"callbackURL": process.env.host + "/auth/spotify/callback"
 		},
-		// R2) Set up redis configs with the derived password, port, and hostname
+		// Set up redis configs with the derived password, port, and hostname
 		redis: {
 			host: redisURI.hostname,
 			port: redisURI.port,

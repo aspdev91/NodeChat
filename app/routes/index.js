@@ -2,13 +2,10 @@
 
 const h = require('../helpers')
 const passport = require('passport');
-// S15) we have to import in the config file to get the host depending on dev/prod 
 const config = require('../config');
 
 module.exports = () => {
 	let routes = {
-		// the order matters here. If we put NA on top, all the pages
-		// get redirected to the 404 page
 		'get': {
 			'/': (req,res,next) => {
 				res.render('login');
@@ -22,25 +19,17 @@ module.exports = () => {
 					host: config.host
 				});
 			}],
-			// S38) append :id to the chat route. Allows you extract the room from the room id
-			// express extract url parameters
-			// We should only render it if the id is found
 			'/chat/:id': [h.isAuthenticated,(req, res, next) => {
-				// S39) Use the helper method to getRoom
-				// We can still access app.locals.chatroom anywhere using the req variable
+				
 				let getRoom = h.findRoomById(req.app.locals.chatrooms, req.params.id);
 				if(getRoom === undefined){
-					// if the room doesn't exist, it passes down to the next middleware 
-					// which is the 404 error
 					console.log('check routes, cannot getRoom')
 					return next();
 				} else {
 					console.log('this is req.user',req.user)
 					res.render('chatroom',{
 						user: req.user,
-						// S17) sets the host to the respones for the chat route
 						host: config.host,
-						//S40) Set the room and roomID variables to the results of getRoom
 						room: getRoom.room,
 						roomID: getRoom.roomID
 					});

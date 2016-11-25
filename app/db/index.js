@@ -6,12 +6,11 @@ const Mongoose = require('mongoose').connect(config.dbURI);
 
 // Log an error if the connection fails
 Mongoose.connection.on('error', error => {
-	// W4 Direct the errors to winston, see console.log replacement
 	logger.log('error','Mongoose connection error ' + error);
 	// console.log("MongoDB Error: ", error);
 })
 
-// Create a Schema that defines the structure for storing user data
+
 
 const chatUser = new Mongoose.Schema({ 
 	uniqueUserId: String,
@@ -23,7 +22,6 @@ const chatUser = new Mongoose.Schema({
 	messageCount: Number
 })
 
-// Create a Schema for storing chatroom list
 
 const chatRoom = new Mongoose.Schema({ 
 	roomID: String,

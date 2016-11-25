@@ -11,9 +11,6 @@ if(process.env.NODE_ENV === 'production'){
 		secret: config.sessionSecret,
 		resave: false,
 		saveUninitialized: false,
-		// session store, where the session data will be stored
-		// should not store session data in memory, it will kill the server
-		// 
 		store: new MongoStore({
 			// refers to mongo db instance and connects to it
 			mongooseConnection: db.Mongoose.connection
@@ -29,7 +26,5 @@ if(process.env.NODE_ENV === 'production'){
 		// hasn't been initialized. In production though, we would set this to true
 		// so there aren't superfluous calls to the database
 		saveUnitialized: true
-		// its the law that an use cookie is generated only when the user logins
-		// or an infringement may occur
 	})
 }

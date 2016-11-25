@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>ChatCat - Rooms</title>
+	<title>NodeChat - Rooms</title>
 	<link rel="stylesheet" href="/css/roomsStyles.css">
 	<script src="/js/jquery-2.1.4.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
@@ -19,12 +19,10 @@
 		})
 		// Create a jquery input field
 		let newRoomInput = $("input[name='roomName']");
-		// turns on the socket 
-		// socket.on('connect', () => console.log('Connected to server'))
+
 		let renderChatRooms = chatrooms => {
 			let roomsListDiv = $('#roomsListUL');
 			let listStr = '';
-			//S21) Iterate over the array to create a list
 			for(let chat of chatrooms){
 				listStr += `<a href="/chat/${chat.roomID}"><li>${chat.room}</li></a>`
 			}
@@ -34,8 +32,7 @@
 		// Get a list of chatrooms using socket.emit
 		// Dispatches an event called getChatRooms which signals our server to trigger the event
 		socket.emit('getChatRooms');
-		// S26) Set an event listener for chatRoomsList which is coming from the server
-		// 
+		// Set an event listener for chatRoomsList which is coming from the server
 		socket.on('chatRoomsList', chatrooms => {
 			console.log(chatrooms);
 			// Generates the chatrooms
@@ -56,7 +53,7 @@
 <body>
 	<div class="container">
 		<div class="titlePanel">
-			<h1>ChatCAT | Select or Create a Chatroom</h1>
+			<h1>NodeChat| Select or Create a Chatroom</h1>
 		</div>
 		<div class="controls">
 			<div class="userPicHolder"><img src="<%= user.profilePic %>" alt="<%= user.fullName %>"></div>

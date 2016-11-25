@@ -7,22 +7,18 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 const logger = require('../logger');
 
 module.exports = () => {
-	// allows routes to access the user.id auth using serialize and deserialize
-	// serializeuser is invoked when the authorization ends
-	// this user.id is not from FB, its from MongoDB
-	// refer to isauthenticted on helper function
+
 	passport.serializeUser((user,done)=> {
 		console.log(user.id);
 		done(null,user.id)
 	})
-	// serialize - saved to session req.session.passport.user
-	// deserialize - user object attaches to the request as req.user
+
 	passport.deserializeUser((id, done) => {
 		// Find the user using the _id
 		h.findById(id)
 			.then(user => done(null,user))
 			.catch(error => logger.log('error','Error when deserializing the user' + error));
-	})
+	})xz
 
 	let authFbProcessor = (accessToken, refreshToken, profile, done) => {
 		// Find a user in the local db using profile.id

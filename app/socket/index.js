@@ -22,15 +22,11 @@ var dateFormat = require('dateformat');
  	// 	roomID: '0002',
  	// 	users: []
  	// })
- 	// which is connected to the rooms view html/ejs file
- 	// We are now listening on the roomsList pipeline in our socket io connection
- 	// the on keyword allows for event listeners to listen on this socket
+ 
  	io.of('/roomslist').on('connection', socket => {
 
- 		
- 		// Configure the getChatRooms socket trigger here in the server (async)
  		socket.on('getChatRooms', () => {
- 			// A4) Add rooms to allrooms list from MongoDB
+ 			// Add rooms to allrooms list from MongoDB
  			h.retrievePastRoomsMDB()
 			.then(pastChatRooms => {
 				app.locals.chatrooms = pastChatRooms
@@ -43,7 +39,7 @@ var dateFormat = require('dateformat');
  		});
  		// Create a new event listener for createNewRoom
  		socket.on('createNewRoom',newRoomInput => {
- 			// S33) Check if the room exists, if not create one 
+ 			// Check if the room exists, if not create one 
  			if(!h.findRoomByName(allrooms, newRoomInput)) {
  				let newRoom = {
  					room: newRoomInput,
@@ -70,9 +66,9 @@ var dateFormat = require('dateformat');
 
  	io.of('/chatter').on('connection',socket => {
  		socket.on('join', data => {
- 			// S46) Sets usersList to the result of this helper function
+ 			// Sets usersList to the result of this helper function
  			let usersList = h.addUserToRoom(allrooms, data, socket) || 	[];
- 			// S49) Broadcast the new user out to everyone and also the user who just joined
+ 			// Broadcast the new user out to everyone and also the user who just joined
  			socket.broadcast.to(data.roomID).emit('updateUsersList', JSON.stringify(usersList.users)) // equivalent of socket.broadcast.to
  			// Provide user with old messages
  			h.retrieveChatMessages(data.roomID)
@@ -82,14 +78,13 @@ var dateFormat = require('dateformat');
  			// We need to also update the list for the user who just loggedin
  			socket.emit('updateUsersList', JSON.stringify(usersList.users));
  		})
- 		// S54) In case the user disconnects, run this helper function
+ 		// In case the user disconnects, run this helper function
  		socket.on('disconnect', () => {
  			let room = h.removeUserFromRoom(allrooms, socket) || [];
  			// socket.emit('chatRoomsList', JSON.stringify(room))
  			socket.broadcast.to(room.roomID).emit('updateUsersList', JSON.stringify(room.users));
  			// No need to send it to the user of origin so the user already left
  		})
- 		// S58) Listener for event key
  		socket.on('newMessage',data => {
  				h.analyzeMessage(data.message)
  				.then( result => {

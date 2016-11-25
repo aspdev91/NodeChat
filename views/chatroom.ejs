@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>ChatCat - Topic Goes Here</title>
+	<title>NodeChat</title>
 	<link rel="stylesheet" href="/css/chatroomStyles.css">
 	<script src="/js/jquery-2.1.4.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
@@ -76,10 +76,6 @@
 			updateFeed(parsedData.userPic,parsedData.message);
 		})
 
-		// Access the user input field and puts an event listener for the enter key
-		// we are not using the fat arrow function here because we need the context of "this"
-		// we need the context in which the event was fired
-		// fat arrow functions do not carry a new context, just the old one
 		chatInput.on('keyup',function(evt){
 			evt.preventDefault(); // tell browser not to react
 			let messageFld = $(this);
@@ -92,12 +88,10 @@
 					userPic,
 					message: messageFld.val()
 				})
-				// S61)  Update the local feed
-				// updateFeed(userPic,messageFld.val());
 				messageFld.val('');
 			}
 		})
-		// C3 set up cloudinary to launch onclick
+		// set up cloudinary to launch onclick
 		filePicker.on('click',function(evt){
 			cloudinary.openUploadWidget({
 				// C4) provide info with preset to downsize image
@@ -125,7 +119,7 @@
 <body>
 	<div class="container">
 		<div class="titlePanel">
-			<h1>ChatCAT | <%= room %></h1>
+			<h1>NodeChat | <%= room %></h1>
 		</div>
 		<div class="controls">
 			<div class="userPicHolder"><img src="<%= user.profilePic %>" alt="<%= user.fullName %>"></div>
